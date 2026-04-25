@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Critical System Breach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;700&display=swap');
+
+        :root {
+            --hacker-green: #00ff41;
+            --alert-red: #ff003c;
+        }
+
+        body, html {
+            background-color: #020202;
+            color: var(--hacker-green);
+            font-family: 'Fira Code', monospace;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .terminal-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .red-alert {
+            color: var(--alert-red);
+            text-shadow: 0 0 15px var(--alert-red);
+            font-weight: 700;
+        }
+
+        /* Glitch Animation */
+        .glitch {
+            animation: glitch-anim 0.2s infinite;
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); filter: hue-rotate(90deg); }
+            40% { transform: translate(-5px, -5px); clip-path: inset(10% 0 30% 0); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); filter: invert(1); }
+            100% { transform: translate(0); }
+        }
+
+        /* Blinking Cursor */
+        .cursor::after {
+            content: "█";
+            animation: blink 0.8s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Fingerprint Scanner */
+        .scanner-btn {
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid var(--hacker-green);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: var(--hacker-green);
+            box-shadow: 0 0 20px var(--hacker-green);
+            top: 0;
+            animation: scan-move 2s linear infinite;
+        }
+
+        @keyframes scan-move {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        .hijack-bg {
+            animation: strobe 0.1s infinite;
+        }
+
+        @keyframes strobe {
+            0% { background: #ff0000; color: #000; }
+            50% { background: #000; color: #ff0000; }
+            100% { background: #ff0000; color: #000; }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+
+    <!-- Phase 1: Auto-Tracing -->
+    <div id="phase1" class="terminal-container">
+        <div id="output" class="text-sm md:text-xl leading-relaxed max-w-4xl mx-auto w-full"></div>
+        <div id="trigger-area" class="mt-10 flex justify-center opacity-0 transition-opacity duration-1000">
+            <button id="auth-btn" class="scanner-btn px-10 py-5 rounded text-xl uppercase tracking-tighter font-bold cursor-pointer">
+                <div class="scanner-line"></div>
+                Confirm Identity
+            </button>
+        </div>
+    </div>
+
+    <!-- Phase 2: Dexter -->
+    <div id="phase2" class="hidden fixed inset-0 z-[200] bg-black flex items-center justify-center">
+        <h1 id="dexter-msg" class="text-2xl md:text-5xl text-zinc-500 font-light tracking-[0.4em] uppercase"></h1>
+    </div>
+
+    <!-- Phase 3: Hijack -->
+    <div id="phase3" class="hidden fixed inset-0 z-[300] hijack-bg flex flex-col items-center justify-center text-center p-4">
+        <h2 class="text-6xl md:text-9xl font-black italic mb-4">SYSTEM BREACH</h2>
+        <h2 class="text-4xl md:text-7xl font-bold">YOUR PHONE IS HIJACKED</h2>
+        <p class="mt-10 text-xl font-mono uppercase">Unauthorized Access Detected</p>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const authBtn = document.getElementById('auth-btn');
+        let audioCtx;
+
+        // --- Audio Synthesizer ---
+        function playThud() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1, audioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function playSiren() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            
+            // Warbling effect
+            setInterval(() => {
+                if(osc) {
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+                    osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.4);
+                }
+            }, 400);
+
+            gain.gain.value = 0.2;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+        }
+
+        // --- Scripted Content ---
+        async function runSequence() {
+            const lines = [
+                { t: "Establishing uplink...", d: 800 },
+                { t: "Bypassing biometric encryption...", d: 1000 },
+                { t: "Extracting network packets...", d: 1200 },
+                { t: "Target Found: <span class='red-alert'>192.168.1.105</span>", d: 1500, html: true },
+                { t: "Address Locked: <span class='red-alert'>PRIVATE_USER_SUBNET</span>", d: 1000, html: true },
+                { t: "Status: <span class='animate-pulse'>AWAITING PERMISSION...</span>", d: 800, html: true }
+            ];
+
+            for (const line of lines) {
+                await new Promise(r => setTimeout(r, line.d));
+                const p = document.createElement('p');
+                p.className = "mb-2 cursor";
+                if (line.html) p.innerHTML = `> ${line.t}`;
+                else p.innerText = `> ${line.t}`;
+                output.appendChild(p);
+                // Remove cursor from previous
+                if (output.children.length > 1) output.children[output.children.length-2].classList.remove('cursor');
+            }
+            
+            document.getElementById('trigger-area').style.opacity = '1';
+        }
+
+        // --- Interaction ---
+        authBtn.addEventListener('click', () => {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Screen Glitch effect
+            document.body.classList.add('glitch');
+            
+            setTimeout(() => {
+                document.body.classList.remove('glitch');
+                document.getElementById('phase1').classList.add('hidden');
+                document.getElementById('phase2').classList.remove('hidden');
+                
+                typeDexter();
+            }, 500);
+        });
+
+        function typeDexter() {
+            const text = "DEXTER IS WATCHING YOU";
+            const el = document.getElementById('dexter-msg');
+            let i = 0;
+            
+            const interval = setInterval(() => {
+                if (i < text.length) {
+                    el.innerText += text[i];
+                    playThud();
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(hijack, 2000);
+                }
+            }, 250);
+        }
+
+        function hijack() {
+            document.getElementById('phase2').classList.add('hidden');
+            document.getElementById('phase3').classList.remove('hidden');
+            playSiren();
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 1000]);
+        }
+
+        // Initialize
+        runSequence();
+    </script>
+</body>
+</html> 
